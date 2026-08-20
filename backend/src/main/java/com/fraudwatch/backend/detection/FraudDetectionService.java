@@ -9,8 +9,6 @@ import java.util.List;
 
 /**
  * Runs each incoming transaction through our fraud detection rules.
- * More rules (unusual frequency) will be added here later as their own
- * private check methods, called from evaluate().
  */
 @Service
 public class FraudDetectionService {
@@ -33,6 +31,14 @@ public class FraudDetectionService {
     // regardless of how far apart the two locations actually are.
     private static final Duration MIN_TRAVEL_TIME = Duration.ofMinutes(30);
 
+    // How far back we look when counting an account's recent transactions.
+    private static final Duration FREQUENCY_WINDOW = Duration.ofMinutes(5);
+
+    // If this many (or more) of the account's past transactions fall
+    // inside FREQUENCY_WINDOW, the new transaction gets flagged as part
+    // of an unusually rapid burst.
+    private static final int MAX_TRANSACTIONS_IN_WINDOW = 3;
+
     /**
      * @param transaction     the incoming transaction being checked
      * @param pastTransactions that account's history BEFORE this transaction
@@ -47,6 +53,11 @@ public class FraudDetectionService {
         DetectionResult impossibleTravel = checkImpossibleTravel(transaction, pastTransactions);
         if (impossibleTravel.flagged()) {
             return impossibleTravel;
+        }
+
+        DetectionResult unusualFrequency = checkUnusualFrequency(transaction, pastTransactions);
+        if (unusualFrequency.flagged()) {
+            return unusualFrequency;
         }
 
         return DetectionResult.clear();
@@ -96,6 +107,28 @@ public class FraudDetectionService {
 
         if (timeBetween.compareTo(MIN_TRAVEL_TIME) < 0) {
             return new DetectionResult(true, "Impossible travel: location changed too quickly");
+        }
+
+        return DetectionResult.clear();
+    }
+
+    private DetectionResult checkUnusualFrequency(Transaction transaction, List<Transaction> pastTransactions) {
+        Instant currentTime = Instant.parse(transaction.timestamp());
+
+        // Count how many past transactions fall inside the FREQUENCY_WINDOW
+        // immediately before this one. For each past transaction we compute
+        // the elapsed time up to the current transaction (Duration.between),
+        // then keep only the ones where that gap is within the window —
+        // this is the "sliding window" pattern: instead of a fixed calendar
+        // window, the window always ends at the current transaction's time
+        // and slides back FREQUENCY_WINDOW behind it.
+        long recentCount = pastTransactions.stream()
+                .map(past -> Duration.between(Instant.parse(past.timestamp()), currentTime).abs())
+                .filter(gap -> gap.compareTo(FREQUENCY_WINDOW) <= 0)
+                .count();
+
+        if (recentCount >= MAX_TRANSACTIONS_IN_WINDOW) {
+            return new DetectionResult(true, "Unusual transaction frequency: too many transactions in a short window");
         }
 
         return DetectionResult.clear();
