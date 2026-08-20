@@ -3,12 +3,14 @@ package com.fraudwatch.backend.detection;
 import com.fraudwatch.backend.model.Transaction;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 /**
  * Runs each incoming transaction through our fraud detection rules.
- * More rules (impossible travel, unusual frequency) will be added here
- * later as their own private check methods, called from evaluate().
+ * More rules (unusual frequency) will be added here later as their own
+ * private check methods, called from evaluate().
  */
 @Service
 public class FraudDetectionService {
@@ -24,6 +26,13 @@ public class FraudDetectionService {
     // tune this once we see how real/simulated data behaves.
     private static final double UNUSUAL_AMOUNT_MULTIPLIER = 3.0;
 
+    // Shortest gap we consider realistic between two transactions in
+    // different locations. We don't have real geographic distance
+    // between locations, just names, so this is a simplification: ANY
+    // location change faster than this window is treated as suspicious,
+    // regardless of how far apart the two locations actually are.
+    private static final Duration MIN_TRAVEL_TIME = Duration.ofMinutes(30);
+
     /**
      * @param transaction     the incoming transaction being checked
      * @param pastTransactions that account's history BEFORE this transaction
@@ -33,6 +42,11 @@ public class FraudDetectionService {
         DetectionResult unusualAmount = checkUnusualAmount(transaction, pastTransactions);
         if (unusualAmount.flagged()) {
             return unusualAmount;
+        }
+
+        DetectionResult impossibleTravel = checkImpossibleTravel(transaction, pastTransactions);
+        if (impossibleTravel.flagged()) {
+            return impossibleTravel;
         }
 
         return DetectionResult.clear();
@@ -51,6 +65,37 @@ public class FraudDetectionService {
 
         if (transaction.amount() > averagePastAmount * UNUSUAL_AMOUNT_MULTIPLIER) {
             return new DetectionResult(true, "Amount significantly higher than account average");
+        }
+
+        return DetectionResult.clear();
+    }
+
+    private DetectionResult checkImpossibleTravel(Transaction transaction, List<Transaction> pastTransactions) {
+        if (pastTransactions.isEmpty()) {
+            // No prior transaction for this account to compare against yet.
+            return DetectionResult.clear();
+        }
+
+        // historyFor() returns transactions in the order they were saved,
+        // so the last element is the most recent one before this transaction.
+        Transaction previous = pastTransactions.get(pastTransactions.size() - 1);
+
+        if (previous.location().equals(transaction.location())) {
+            // Same location as last time — no travel to question.
+            return DetectionResult.clear();
+        }
+
+        // Instant.parse() reads an ISO 8601 timestamp like
+        // "2026-08-20T10:00:00Z" into a single point in time. Duration.between()
+        // gives us the elapsed time between two Instants as a Duration we can
+        // compare directly — no manual date-math needed. We take the absolute
+        // value in case timestamps ever arrive slightly out of order.
+        Instant previousTime = Instant.parse(previous.timestamp());
+        Instant currentTime = Instant.parse(transaction.timestamp());
+        Duration timeBetween = Duration.between(previousTime, currentTime).abs();
+
+        if (timeBetween.compareTo(MIN_TRAVEL_TIME) < 0) {
+            return new DetectionResult(true, "Impossible travel: location changed too quickly");
         }
 
         return DetectionResult.clear();

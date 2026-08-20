@@ -37,10 +37,10 @@ HTTP: Divine's simulator POSTs transactions to Alex's API. Daniel's dashboard po
 
 ## Detection Rules
 1. ✅ Unusual amount vs. account history — flags if an amount is more than 3x the account's historical average (once at least 3 past transactions exist)
-2. Impossible travel between two transaction locations given time elapsed
+2. ✅ Impossible travel — flags if the location differs from the account's most recent prior transaction and less than 30 minutes elapsed between them (no real distance/speed calculation, just a fixed time window)
 3. Unusual transaction frequency in a short window
 
-*(Rules 2 and 3 not implemented yet — those transactions still return `flagged: false`. Rules are being added one at a time.)*
+*(Rule 3 not implemented yet — those transactions still return `flagged: false`. Rules are being added one at a time.)*
 
 ## Running the Backend Locally
 
