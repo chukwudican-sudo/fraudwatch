@@ -1,5 +1,7 @@
 package com.fraudwatch.backend.controller;
 
+import com.fraudwatch.backend.detection.DetectionResult;
+import com.fraudwatch.backend.detection.FraudDetectionService;
 import com.fraudwatch.backend.model.TaggedTransaction;
 import com.fraudwatch.backend.model.Transaction;
 import com.fraudwatch.backend.store.TransactionStore;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,12 +24,15 @@ import java.util.Map;
 public class TransactionController {
 
     private final TransactionStore transactionStore;
+    private final FraudDetectionService fraudDetectionService;
 
     // Constructor injection: Spring sees this constructor needs a
-    // TransactionStore and automatically passes in the single shared
-    // instance it created at startup (see @Component on TransactionStore).
-    public TransactionController(TransactionStore transactionStore) {
+    // TransactionStore and a FraudDetectionService, and automatically
+    // passes in the single shared instance of each it created at startup
+    // (see @Component / @Service on those classes).
+    public TransactionController(TransactionStore transactionStore, FraudDetectionService fraudDetectionService) {
         this.transactionStore = transactionStore;
+        this.fraudDetectionService = fraudDetectionService;
     }
 
     @GetMapping("/")
@@ -36,13 +42,15 @@ public class TransactionController {
 
     @PostMapping("/transactions")
     public TaggedTransaction receiveTransaction(@RequestBody Transaction transaction) {
-        // Record this transaction in that account's history so future
-        // detection rules have past behavior to compare against.
+        // Fetch this account's history BEFORE saving the current
+        // transaction, so the detection rules only ever compare against
+        // genuinely past transactions — never against themselves.
+        List<Transaction> pastTransactions = transactionStore.historyFor(transaction.accountId());
+        DetectionResult result = fraudDetectionService.evaluate(transaction, pastTransactions);
+
+        // Only save AFTER the check has run.
         transactionStore.save(transaction);
 
-        // No detection logic yet — every transaction comes back
-        // flagged=false. We'll replace this with real rule checks in
-        // later steps, one rule at a time, so each can be tested alone.
-        return TaggedTransaction.from(transaction, false, "");
+        return TaggedTransaction.from(transaction, result.flagged(), result.reason());
     }
 }
