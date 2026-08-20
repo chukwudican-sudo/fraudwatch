@@ -1,0 +1,41 @@
+.stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 4px 0;
+}
+
+.stats-bar__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stats-bar__value {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-hi);
+  line-height: 1;
+}
+
+.stats-bar__value--flag {
+  color: var(--flag);
+}
+
+.stats-bar__value--safe {
+  color: var(--safe);
+}
+
+.stats-bar__label {
+  font-size: 10.5px;
+  color: var(--text-low);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stats-bar__divider {
+  width: 1px;
+  height: 26px;
+  background: var(--line);
+}
