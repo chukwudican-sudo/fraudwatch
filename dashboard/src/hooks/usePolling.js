@@ -5,13 +5,11 @@ const MAX_FEED_LENGTH = 60
 const MAX_CHART_POINTS = 40
 const POLL_INTERVAL_MS = 2000
 
-// Owns the "live" state of the dashboard: the running transaction feed
-// and the flag-rate-over-time series the chart reads from. Everything
-// here is UI-agnostic - components just consume the arrays it returns.
 export function usePolling() {
   const [transactions, setTransactions] = useState([])
   const [chartData, setChartData] = useState([])
   const [isConnected, setIsConnected] = useState(true)
+  const [stats, setStats] = useState({ total: 0, flagged: 0 })
   const seenCount = useRef(0)
   const flaggedCount = useRef(0)
 
@@ -31,6 +29,8 @@ export function usePolling() {
           seenCount.current += 1
           if (t.flagged) flaggedCount.current += 1
         })
+
+        setStats({ total: seenCount.current, flagged: flaggedCount.current })
 
         const flagRate = seenCount.current === 0 ? 0 : (flaggedCount.current / seenCount.current) * 100
 
@@ -57,5 +57,5 @@ export function usePolling() {
     }
   }, [])
 
-  return { transactions, chartData, isConnected }
+  return { transactions, chartData, isConnected, stats }
 }
