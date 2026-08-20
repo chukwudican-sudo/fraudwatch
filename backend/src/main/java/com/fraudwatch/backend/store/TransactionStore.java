@@ -1,8 +1,11 @@
 package com.fraudwatch.backend.store;
 
+import com.fraudwatch.backend.model.TaggedTransaction;
 import com.fraudwatch.backend.model.Transaction;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,11 +30,23 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component
 public class TransactionStore {
 
+    // How many tagged transactions the live dashboard feed shows. Older
+    // ones are still kept in historyByAccount for the detection rules —
+    // this limit only applies to what GET /transactions returns.
+    private static final int RECENT_FEED_LIMIT = 50;
+
     // ConcurrentHashMap (not a plain HashMap) because Spring Boot can handle
     // several requests at once on different threads, and a plain HashMap
     // can corrupt itself if two threads write to it at the same time.
     // Same reasoning for CopyOnWriteArrayList below instead of ArrayList.
     private final Map<String, List<Transaction>> historyByAccount = new ConcurrentHashMap<>();
+
+    // Every tagged transaction, across all accounts, in the order it was
+    // saved. This is what powers the dashboard's live feed (GET
+    // /transactions) — historyByAccount above is per-account and only
+    // stores the raw (untagged) transaction, since that's all the
+    // detection rules need to compare against.
+    private final List<TaggedTransaction> recentTagged = new CopyOnWriteArrayList<>();
 
     public void save(Transaction transaction) {
         historyByAccount
@@ -41,5 +56,21 @@ public class TransactionStore {
 
     public List<Transaction> historyFor(String accountId) {
         return historyByAccount.getOrDefault(accountId, List.of());
+    }
+
+    public void recordTagged(TaggedTransaction tagged) {
+        recentTagged.add(tagged);
+    }
+
+    /** The most recent tagged transactions, newest first, capped at RECENT_FEED_LIMIT. */
+    public List<TaggedTransaction> recentTagged() {
+        int size = recentTagged.size();
+        int fromIndex = Math.max(0, size - RECENT_FEED_LIMIT);
+
+        // subList() gives us oldest-first within that slice; reverse it
+        // so the dashboard gets newest-first, like a typical activity feed.
+        List<TaggedTransaction> newestFirst = new ArrayList<>(recentTagged.subList(fromIndex, size));
+        Collections.reverse(newestFirst);
+        return newestFirst;
     }
 }

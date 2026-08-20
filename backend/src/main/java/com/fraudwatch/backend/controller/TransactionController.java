@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Defines FraudWatch's two HTTP endpoints. {@code @RestController} tells
+ * Defines FraudWatch's HTTP endpoints. {@code @RestController} tells
  * Spring that every method's return value should be serialized straight
  * to a JSON response body (equivalent to what FastAPI does by default).
  * Spring routes requests to these methods based on the {@code @GetMapping}
@@ -55,9 +55,20 @@ public class TransactionController {
         // Only save AFTER the check has run.
         transactionStore.save(transaction);
 
+        TaggedTransaction tagged = TaggedTransaction.from(transaction, result.flagged(), result.reason());
+        transactionStore.recordTagged(tagged);
+
         log.info("account_id={} amount={} flagged={} reason=\"{}\"",
                 transaction.accountId(), transaction.amount(), result.flagged(), result.reason());
 
-        return TaggedTransaction.from(transaction, result.flagged(), result.reason());
+        return tagged;
+    }
+
+    @GetMapping("/transactions")
+    public List<TaggedTransaction> recentTransactions() {
+        // Powers the dashboard's live feed: it polls this endpoint and
+        // expects transactions already tagged with a flagged/reason verdict,
+        // newest first.
+        return transactionStore.recentTagged();
     }
 }
