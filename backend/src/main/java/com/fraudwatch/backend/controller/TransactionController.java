@@ -5,6 +5,8 @@ import com.fraudwatch.backend.detection.FraudDetectionService;
 import com.fraudwatch.backend.model.TaggedTransaction;
 import com.fraudwatch.backend.model.Transaction;
 import com.fraudwatch.backend.store.TransactionStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +24,8 @@ import java.util.Map;
  */
 @RestController
 public class TransactionController {
+
+    private static final Logger log = LoggerFactory.getLogger(TransactionController.class);
 
     private final TransactionStore transactionStore;
     private final FraudDetectionService fraudDetectionService;
@@ -50,6 +54,9 @@ public class TransactionController {
 
         // Only save AFTER the check has run.
         transactionStore.save(transaction);
+
+        log.info("account_id={} amount={} flagged={} reason=\"{}\"",
+                transaction.accountId(), transaction.amount(), result.flagged(), result.reason());
 
         return TaggedTransaction.from(transaction, result.flagged(), result.reason());
     }
