@@ -1,6 +1,3 @@
-target/
-*.class
-
 # IDE
 .idea/
 *.iml

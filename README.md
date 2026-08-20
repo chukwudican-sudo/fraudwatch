@@ -10,6 +10,16 @@ Real-time fraud/anomaly-detection pipeline built as a 3-person Agile sprint (2 w
 ## Architecture
 Divine's simulator → Alex's detection service → Daniel's dashboard
 
+## Repo Structure
+This is a monorepo — each service lives in its own top-level folder and
+is self-contained (its own dependency/build config, runnable on its own):
+```
+fraudwatch/
+├── backend/     # Alex — detection service (Java / Spring Boot)
+├── dashboard/   # Daniel — live dashboard (frontend)
+└── simulator/   # Divine — transaction simulator
+```
+
 ## Data Contract
 
 **Transaction** (sent by Divine's simulator):
@@ -36,7 +46,12 @@ HTTP: Divine's simulator POSTs transactions to Alex's API. Daniel's dashboard po
 
 **Requirements:** Java 17+ and Maven (`brew install maven` on macOS).
 
-1. **Run the server** (from the project root):
+All commands below are run from inside the `backend/` folder:
+```bash
+cd backend
+```
+
+1. **Run the server:**
    ```bash
    mvn spring-boot:run
    ```
