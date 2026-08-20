@@ -29,3 +29,35 @@ HTTP: Divine's simulator POSTs transactions to Alex's API. Daniel's dashboard po
 1. Unusual amount vs. account history
 2. Impossible travel between two transaction locations given time elapsed
 3. Unusual transaction frequency in a short window
+
+*(Not implemented yet — current backend always returns `flagged: false`. Rules are being added one at a time.)*
+
+## Running the Backend Locally
+
+**Requirements:** Java 17+ and Maven (`brew install maven` on macOS).
+
+1. **Run the server** (from the project root):
+   ```bash
+   mvn spring-boot:run
+   ```
+   Maven downloads dependencies on first run, then starts the app at
+   `http://localhost:8080`.
+
+2. **Check it's alive:**
+   ```bash
+   curl http://localhost:8080/
+   # {"status":"FraudWatch backend running"}
+   ```
+
+3. **Send a test transaction:**
+   ```bash
+   curl -X POST http://localhost:8080/transactions \
+     -H "Content-Type: application/json" \
+     -d '{"id":"tx1","timestamp":"2026-08-18T17:00:00Z","account_id":"acc1","amount":42.50,"location":"Toronto"}'
+   ```
+
+4. **Build a runnable jar** (optional):
+   ```bash
+   mvn package
+   java -jar target/fraudwatch-backend-0.0.1-SNAPSHOT.jar
+   ```
