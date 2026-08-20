@@ -1,0 +1,58 @@
+:root {
+  --ink-0: #0a0d13;
+  --ink-1: #10141d;
+  --ink-2: #161b26;
+  --line: #232a38;
+  --text-hi: #e8ecf1;
+  --text-mid: #9aa4b6;
+  --text-low: #5c6579;
+
+  --safe: #2dd4bf;
+  --safe-dim: rgba(45, 212, 191, 0.12);
+  --flag: #ff5c72;
+  --flag-dim: rgba(255, 92, 114, 0.14);
+  --live: #ffc857;
+
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ink-0);
+  background-image: radial-gradient(circle at 15% 0%, rgba(45, 212, 191, 0.05), transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(255, 92, 114, 0.05), transparent 40%);
+  color: var(--text-hi);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--safe-dim);
+}
+
+/* scrollbar, kept quiet on purpose */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
