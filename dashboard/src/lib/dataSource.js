@@ -5,9 +5,9 @@
 
 import { generateMockBatch } from './mockData'
 
-const USE_MOCK = true // flip to false once API_BASE_URL is real
+const USE_MOCK = false // flip to false once API_BASE_URL is real
 
-const API_BASE_URL = 'http://localhost:8000' // placeholder, ask Alex for the real one
+const API_BASE_URL = 'http://10.0.0.131:8080'
 
 export async function fetchLatestTransactions() {
   if (USE_MOCK) {
