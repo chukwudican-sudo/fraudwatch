@@ -29,15 +29,45 @@ public class FraudDetectionService {
     // between locations, just names, so this is a simplification: ANY
     // location change faster than this window is treated as suspicious,
     // regardless of how far apart the two locations actually are.
-    private static final Duration MIN_TRAVEL_TIME = Duration.ofMinutes(30);
+    //
+    // This used to be 30 minutes, tuned for realistic human transaction
+    // pacing. Divine's simulator sends transactions far faster than a
+    // real person would (roughly one every 30 seconds per account, even
+    // in normal/non-anomalous traffic), so a 30-minute window was
+    // essentially always satisfied — it was catching ordinary baseline
+    // noise (the simulator's location picker randomly varies location
+    // even for non-anomalous transactions), not genuine impossible
+    // travel. 4 minutes comfortably covers the simulator's own deliberate
+    // impossible-travel anomalies (a 30-180 second gap, see
+    // simulator/config.py) while cutting out most of that stale-comparison
+    // noise. It won't catch every coincidental false positive — telling
+    // "actually suspicious" apart from "just picked a different city at
+    // random" purely from elapsed time has real limits without genuine
+    // distance data.
+    private static final Duration MIN_TRAVEL_TIME = Duration.ofMinutes(4);
 
     // How far back we look when counting an account's recent transactions.
-    private static final Duration FREQUENCY_WINDOW = Duration.ofMinutes(5);
+    //
+    // This used to be 5 minutes with a threshold of 3, which sounds
+    // tight but wasn't relative to the simulator's real traffic: at
+    // ~1 transaction per 30 seconds per account, plain baseline noise
+    // produces roughly 9-10 transactions per account every 5 minutes —
+    // nearly double the old threshold with no burst involved. That's why
+    // accounts stayed "permanently" flagged: the window was so much wider
+    // than the real request rate that it almost never dropped back below
+    // the threshold. The simulator's actual burst anomaly crams 6-12
+    // transactions into a 30-second window (see
+    // simulator/config.py), so a 60-second window comfortably catches a
+    // real burst while staying well above ordinary baseline density.
+    private static final Duration FREQUENCY_WINDOW = Duration.ofSeconds(60);
 
     // If this many (or more) of the account's past transactions fall
     // inside FREQUENCY_WINDOW, the new transaction gets flagged as part
-    // of an unusually rapid burst.
-    private static final int MAX_TRANSACTIONS_IN_WINDOW = 3;
+    // of an unusually rapid burst. Set below the simulator's minimum
+    // burst size (6) with margin, but well above the handful of
+    // transactions a busy account would rack up in 60 seconds of normal
+    // baseline traffic.
+    private static final int MAX_TRANSACTIONS_IN_WINDOW = 5;
 
     /**
      * @param transaction     the incoming transaction being checked
