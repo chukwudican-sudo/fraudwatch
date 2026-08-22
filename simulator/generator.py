@@ -42,7 +42,18 @@ class AccountProfile:
     def normal_location(self) -> str:
         # Mostly home location, occasionally a nearby-ish alternate to keep
         # the baseline stream from being perfectly repetitive.
-        if random.random() < 0.85:
+        #
+        # This was 0.85 (a 15% alternate-location chance), which combined
+        # with the backend's impossible-travel rule (any location change
+        # within a few minutes gets flagged, no real distance data) meant
+        # a large share of ordinary baseline traffic was randomly
+        # "teleporting" and tripping that rule on its own, with no
+        # anomaly involved. 0.95 (5%) cut that down but real per-account
+        # cadence (~30s) is still well inside the detection window, so
+        # even a 5% chance kept producing enough coincidental location
+        # changes to dominate the flag rate. 0.98 (2%) keeps baseline
+        # transactions close to home_location all but rarely.
+        if random.random() < 0.98:
             return self.home_location
         return random.choice(LOCATIONS)
 

@@ -21,7 +21,17 @@ NUM_ACCOUNTS = 25
 # --- Anomaly injection ---
 # Probability that any given "tick" produces an anomaly instead of (or in
 # addition to, for frequency bursts) a normal transaction.
-ANOMALY_PROBABILITY = 0.08
+#
+# This isn't 1:1 with the resulting flag rate: a quarter of anomaly draws
+# (unusual_frequency) inject a burst of 6-12 transactions at once, most of
+# which get flagged, so each anomaly draw contributes several flags on
+# average rather than one. At 0.08 this was producing a ~37-39% flag
+# rate - unrealistic for a fraud demo, where real-world fraud is a small
+# fraction of a percent. 0.012 was chosen by scaling that observed rate
+# down proportionally to land near the middle of a 3-8% target range,
+# still firing an anomaly roughly every ~1-2 minutes at the default
+# tick pace so a demo doesn't sit idle waiting for one.
+ANOMALY_PROBABILITY = 0.012
 
 # Relative weights for which anomaly type gets picked when an anomaly fires.
 ANOMALY_WEIGHTS = {

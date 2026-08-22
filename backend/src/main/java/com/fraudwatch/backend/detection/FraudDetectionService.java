@@ -37,14 +37,18 @@ public class FraudDetectionService {
     // essentially always satisfied — it was catching ordinary baseline
     // noise (the simulator's location picker randomly varies location
     // even for non-anomalous transactions), not genuine impossible
-    // travel. 4 minutes comfortably covers the simulator's own deliberate
+    // travel. That was tightened to 4 minutes, then to 2 minutes here —
+    // still comfortably wider than the simulator's own deliberate
     // impossible-travel anomalies (a 30-180 second gap, see
-    // simulator/config.py) while cutting out most of that stale-comparison
-    // noise. It won't catch every coincidental false positive — telling
+    // simulator/config.py), so genuine injections are still always
+    // caught, while excluding more of the stale-comparison noise. It
+    // won't catch every coincidental false positive on its own — telling
     // "actually suspicious" apart from "just picked a different city at
     // random" purely from elapsed time has real limits without genuine
-    // distance data.
-    private static final Duration MIN_TRAVEL_TIME = Duration.ofMinutes(4);
+    // distance data, which is why this is paired with reducing how often
+    // the simulator's baseline traffic changes location in the first
+    // place (see generator.py's normal_location()).
+    private static final Duration MIN_TRAVEL_TIME = Duration.ofMinutes(2);
 
     // How far back we look when counting an account's recent transactions.
     //
