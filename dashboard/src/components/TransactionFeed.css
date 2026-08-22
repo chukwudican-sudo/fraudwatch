@@ -135,3 +135,26 @@
   font-family: var(--font-mono);
   letter-spacing: 0.01em;
 }
+
+.feed__row--burst {
+  border-color: rgba(255, 200, 87, 0.4);
+}
+
+.feed__row--burst .feed__row-bar {
+  background: var(--live);
+  box-shadow: 0 0 8px var(--live);
+}
+
+.feed__burst-badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--live);
+  background: rgba(255, 200, 87, 0.14);
+  border: 1px solid rgba(255, 200, 87, 0.35);
+  border-radius: 999px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}

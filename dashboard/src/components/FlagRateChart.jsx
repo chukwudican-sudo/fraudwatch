@@ -39,7 +39,12 @@ export default function FlagRateChart({ data }) {
               </linearGradient>
             </defs>
             <XAxis dataKey="time" hide />
-            <YAxis hide domain={[0, (max) => Math.max(20, Math.ceil(max * 1.3))]} />
+            {/* Fixed domain, not derived from the visible data: flag rate is
+                a percentage, so 0-100 is always correct. A domain that
+                recalculates from the current window (the old approach)
+                rescales the whole chart every time a high point scrolls
+                in or out, which is what caused the jumpy/glitchy look. */}
+            <YAxis hide domain={[0, 100]} />
             <Tooltip content={<CustomTooltip />} />
             <Area
               type="monotone"
