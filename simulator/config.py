@@ -4,7 +4,7 @@ import os
 # Point this at Alex's live endpoint once it exists. Until then, POSTs will
 # fail gracefully and every transaction still gets logged locally so you can
 # keep developing without being blocked.
-ENDPOINT_URL = os.environ.get("FRAUDWATCH_ENDPOINT", "http://localhost:8000/transactions")
+ENDPOINT_URL = os.environ.get("FRAUDWATCH_ENDPOINT", "http://localhost:8080/transactions")
 POST_TIMEOUT_SECONDS = 3
 
 # --- Local fallback logging ---
