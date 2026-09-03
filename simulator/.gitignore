@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+venv/
+
+# local fallback log the poster writes on every transaction
+transactions.jsonl
