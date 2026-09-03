@@ -22,6 +22,9 @@ NUM_ACCOUNTS = 25
 # Probability that any given "tick" produces an anomaly instead of (or in
 # addition to, for frequency bursts) a normal transaction.
 #
+# Override it for a demo without editing this file, same as FRAUDWATCH_ENDPOINT:
+#     FRAUDWATCH_ANOMALY_RATE=0.05 python main.py
+#
 # This isn't 1:1 with the resulting flag rate: a quarter of anomaly draws
 # (unusual_frequency) inject a burst of 6-12 transactions at once, most of
 # which get flagged, so each anomaly draw contributes several flags on
@@ -31,7 +34,33 @@ NUM_ACCOUNTS = 25
 # down proportionally to land near the middle of a 3-8% target range,
 # still firing an anomaly roughly every ~1-2 minutes at the default
 # tick pace so a demo doesn't sit idle waiting for one.
-ANOMALY_PROBABILITY = 0.012
+DEFAULT_ANOMALY_PROBABILITY = 0.012
+
+
+def _read_anomaly_probability(default=DEFAULT_ANOMALY_PROBABILITY):
+    """Reads FRAUDWATCH_ANOMALY_RATE, falling back to the default on anything
+    unusable. A typo shouldn't kill the simulator halfway through a demo, so a
+    bad value warns and carries on rather than raising."""
+    raw = os.environ.get("FRAUDWATCH_ANOMALY_RATE")
+    if raw is None:
+        return default
+
+    try:
+        value = float(raw)
+    except ValueError:
+        print(f"[config] FRAUDWATCH_ANOMALY_RATE={raw!r} is not a number, "
+              f"falling back to {default}")
+        return default
+
+    if not 0.0 <= value <= 1.0:
+        print(f"[config] FRAUDWATCH_ANOMALY_RATE={value} is outside 0.0-1.0, "
+              f"falling back to {default}")
+        return default
+
+    return value
+
+
+ANOMALY_PROBABILITY = _read_anomaly_probability()
 
 # Relative weights for which anomaly type gets picked when an anomaly fires.
 ANOMALY_WEIGHTS = {

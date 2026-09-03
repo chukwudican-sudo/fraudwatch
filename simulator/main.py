@@ -18,7 +18,8 @@ import poster
 
 def run():
     print(f"[main] starting simulator | endpoint={config.ENDPOINT_URL} "
-          f"| accounts={config.NUM_ACCOUNTS} | local_log={config.LOCAL_LOG_PATH}")
+          f"| accounts={config.NUM_ACCOUNTS} | anomaly_rate={config.ANOMALY_PROBABILITY} "
+          f"| local_log={config.LOCAL_LOG_PATH}")
     accounts = generator.make_account_pool()
 
     sent, failed, anomalies_fired = 0, 0, 0
