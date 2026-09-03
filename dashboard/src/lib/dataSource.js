@@ -7,7 +7,10 @@ import { generateMockBatch } from './mockData'
 
 const USE_MOCK = false // flip to false once API_BASE_URL is real
 
-const API_BASE_URL = 'http://10.0.0.131:8080'
+// Same host the dashboard itself was loaded from (localhost, a LAN IP,
+// whatever) on port 8080, since everyone runs their own full stack
+// locally. A hardcoded IP here goes stale the moment DHCP reassigns one.
+const API_BASE_URL = `http://${window.location.hostname}:8080`
 
 export async function fetchLatestTransactions() {
   if (USE_MOCK) {

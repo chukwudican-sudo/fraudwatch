@@ -1,37 +1,51 @@
 .chart {
-  background: var(--ink-1);
+  background: linear-gradient(180deg, #11151c 0%, var(--ink-1) 140px);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 16px 18px 8px;
+  border-radius: 16px;
+  padding: 18px 20px 15px;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 0;
+  flex-shrink: 0;
 }
 
 .chart__head {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 16px;
+}
+
+.chart__title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
 .chart__head h2 {
   font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
   margin: 0;
   color: var(--text-hi);
+}
+
+.chart__subtitle {
+  font-size: 11.5px;
+  color: var(--text-low);
 }
 
 .chart__live {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 600;
   color: var(--live);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  background: var(--safe-dim);
+  border: 1px solid rgba(52, 211, 153, 0.28);
+  border-radius: 999px;
+  padding: 4px 11px 4px 9px;
 }
 
 .chart__dot {
@@ -39,7 +53,7 @@
   height: 6px;
   border-radius: 50%;
   background: var(--live);
-  box-shadow: 0 0 6px var(--live);
+  box-shadow: 0 0 8px var(--live);
   animation: pulse 1.6s ease-in-out infinite;
 }
 
@@ -54,37 +68,66 @@
 }
 
 .chart__reading {
-  margin-top: 6px;
+  margin-top: 12px;
   display: flex;
   align-items: baseline;
-  gap: 3px;
+  gap: 4px;
 }
 
 .chart__reading-num {
   font-family: var(--font-mono);
-  font-size: 34px;
+  font-size: 38px;
   font-weight: 700;
-  color: var(--flag);
+  letter-spacing: -0.03em;
   line-height: 1;
 }
 
 .chart__reading-unit {
   font-family: var(--font-mono);
-  font-size: 16px;
-  color: var(--text-mid);
+  font-size: 17px;
+  color: var(--text-low);
 }
 
+.chart__reading-note {
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Fixed height on purpose. Letting this flex to the column height stranded the
+   line at the bottom of a mostly empty panel. */
+/* Tall enough to read as a real chart, short enough that the breakdown panel
+   still fits underneath without the column overflowing. */
 .chart__plot {
-  flex: 1;
-  min-height: 0;
-  margin-top: 8px;
+  height: 216px;
+  margin-top: 14px;
+}
+
+.chart__legend {
+  margin-top: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-low);
+}
+
+.chart__legend-swatch {
+  width: 22px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  background: rgba(52, 211, 153, 0.18);
+  border: 1px solid rgba(52, 211, 153, 0.35);
 }
 
 .chart-tooltip {
   background: var(--ink-2);
   border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 6px 10px;
+  border-radius: 8px;
+  padding: 7px 11px;
   font-family: var(--font-mono);
 }
 
@@ -95,6 +138,6 @@
 
 .chart-tooltip__value {
   font-size: 12px;
-  color: var(--flag);
+  color: var(--text-hi);
   font-weight: 600;
 }

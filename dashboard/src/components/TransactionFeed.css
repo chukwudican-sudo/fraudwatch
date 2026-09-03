@@ -1,32 +1,33 @@
 .feed {
-  background: var(--ink-1);
+  background: linear-gradient(180deg, #11151c 0%, var(--ink-1) 180px);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   min-height: 0;
   height: 100%;
+  overflow: hidden;
 }
 
 .feed__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  padding: 16px 18px 12px;
+  padding: 18px 20px 15px;
   border-bottom: 1px solid var(--line);
 }
 
 .feed__head h2 {
   font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
   margin: 0;
   color: var(--text-hi);
 }
 
 .feed__count {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-low);
 }
 
@@ -37,14 +38,13 @@
   padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .feed__empty {
   color: var(--text-low);
   font-size: 13px;
-  font-family: var(--font-mono);
-  padding: 24px 12px;
+  padding: 28px 12px;
   text-align: center;
 }
 
@@ -52,16 +52,22 @@
   display: flex;
   flex-shrink: 0;
   background: var(--ink-2);
-  border: 1px solid transparent;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.035);
+  border-radius: 11px;
   overflow: hidden;
-  animation: rowIn 240ms ease-out;
+  transition: background 140ms ease, border-color 140ms ease;
+  animation: rowIn 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.feed__row:hover {
+  background: var(--ink-3);
+  border-color: rgba(255, 255, 255, 0.09);
 }
 
 @keyframes rowIn {
   from {
     opacity: 0;
-    transform: translateY(-6px);
+    transform: translateY(-5px);
   }
   to {
     opacity: 1;
@@ -72,22 +78,30 @@
 .feed__row-bar {
   width: 3px;
   flex-shrink: 0;
-  background: var(--line);
+  background: rgba(255, 255, 255, 0.06);
 }
 
+/* Anything flagged gets the same red — the rule is named in the row. */
 .feed__row--flagged {
-  background: var(--flag-dim);
-  border-color: rgba(255, 92, 114, 0.35);
+  background: linear-gradient(90deg, var(--flag-dim) 0%, rgba(238, 75, 92, 0.02) 42%, transparent 70%),
+    var(--ink-2);
+  border-color: var(--flag-line);
+}
+
+.feed__row--flagged:hover {
+  background: linear-gradient(90deg, rgba(238, 75, 92, 0.16) 0%, rgba(238, 75, 92, 0.04) 42%, transparent 70%),
+    var(--ink-3);
+  border-color: rgba(238, 75, 92, 0.45);
 }
 
 .feed__row--flagged .feed__row-bar {
   background: var(--flag);
-  box-shadow: 0 0 8px var(--flag);
+  box-shadow: 0 0 12px var(--flag-glow);
 }
 
 .feed__row-main {
   flex: 1;
-  padding: 10px 12px;
+  padding: 11px 14px;
   min-width: 0;
 }
 
@@ -108,8 +122,8 @@
 
 .feed__amount {
   font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 13.5px;
+  font-weight: 700;
   color: var(--text-hi);
 }
 
@@ -124,37 +138,33 @@
 .feed__location,
 .feed__time {
   font-size: 11.5px;
-  color: var(--text-mid);
+  color: var(--text-low);
   font-family: var(--font-mono);
 }
 
 .feed__reason {
-  margin-top: 6px;
-  font-size: 11.5px;
+  margin-top: 9px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--flag);
-  font-family: var(--font-mono);
-  letter-spacing: 0.01em;
 }
 
-.feed__row--burst {
-  border-color: rgba(255, 200, 87, 0.4);
-}
-
-.feed__row--burst .feed__row-bar {
-  background: var(--live);
-  box-shadow: 0 0 8px var(--live);
+.feed__reason-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
 }
 
 .feed__burst-badge {
+  margin-left: auto;
   font-family: var(--font-mono);
   font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--live);
-  background: rgba(255, 200, 87, 0.14);
-  border: 1px solid rgba(255, 200, 87, 0.35);
+  font-weight: 600;
+  color: var(--text-mid);
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 999px;
-  padding: 2px 8px;
-  flex-shrink: 0;
+  padding: 3px 9px;
 }

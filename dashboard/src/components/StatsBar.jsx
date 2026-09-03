@@ -8,7 +8,7 @@ export default function StatsBar({ stats }) {
     <div className="stats-bar">
       <div className="stats-bar__item">
         <span className="stats-bar__value">{total}</span>
-        <span className="stats-bar__label">total seen</span>
+        <span className="stats-bar__label">checked</span>
       </div>
       <div className="stats-bar__divider" />
       <div className="stats-bar__item">
@@ -18,7 +18,7 @@ export default function StatsBar({ stats }) {
       <div className="stats-bar__divider" />
       <div className="stats-bar__item">
         <span className="stats-bar__value stats-bar__value--safe">{clean}</span>
-        <span className="stats-bar__label">clean</span>
+        <span className="stats-bar__label">cleared</span>
       </div>
     </div>
   )
